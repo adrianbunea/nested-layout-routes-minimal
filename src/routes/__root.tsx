@@ -23,21 +23,14 @@ function RootComponent() {
           Home
         </Link>{' '}
         <Link
-          to={'/posts'}
+          to="/users"
           activeProps={{
-            className: 'font-bold',
+              className: 'font-bold',
           }}
+          activeOptions={{ exact: true }}
         >
-          Posts
-        </Link>
-        <Link
-          to="/layout-a"
-          activeProps={{
-            className: 'font-bold',
-          }}
-        >
-          Layout
-        </Link>
+          Users
+        </Link>{' '}
         <Link
           // @ts-expect-error
           to="/this-route-does-not-exist"
