@@ -13,18 +13,19 @@ import { createFileRoute } from '@tanstack/react-router'
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
+import { Route as ProtectedImport } from './routes/_protected'
 import { Route as IndexImport } from './routes/index'
-import { Route as UsersSearchImport } from './routes/users/_search'
-import { Route as UsersSearchIndexImport } from './routes/users/_search/index'
+import { Route as ProtectedUsersSearchImport } from './routes/_protected/users/_search'
+import { Route as ProtectedUsersSearchIndexImport } from './routes/_protected/users/_search/index'
 
 // Create Virtual Routes
 
-const UsersImport = createFileRoute('/users')()
+const ProtectedUsersImport = createFileRoute('/_protected/users')()
 
 // Create/Update Routes
 
-const UsersRoute = UsersImport.update({
-  path: '/users',
+const ProtectedRoute = ProtectedImport.update({
+  id: '/_protected',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -33,14 +34,19 @@ const IndexRoute = IndexImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const UsersSearchRoute = UsersSearchImport.update({
-  id: '/_search',
-  getParentRoute: () => UsersRoute,
+const ProtectedUsersRoute = ProtectedUsersImport.update({
+  path: '/users',
+  getParentRoute: () => ProtectedRoute,
 } as any)
 
-const UsersSearchIndexRoute = UsersSearchIndexImport.update({
+const ProtectedUsersSearchRoute = ProtectedUsersSearchImport.update({
+  id: '/_search',
+  getParentRoute: () => ProtectedUsersRoute,
+} as any)
+
+const ProtectedUsersSearchIndexRoute = ProtectedUsersSearchIndexImport.update({
   path: '/',
-  getParentRoute: () => UsersSearchRoute,
+  getParentRoute: () => ProtectedUsersSearchRoute,
 } as any)
 
 // Populate the FileRoutesByPath interface
@@ -54,26 +60,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
     }
-    '/users': {
-      id: '/users'
-      path: '/users'
-      fullPath: '/users'
-      preLoaderRoute: typeof UsersImport
+    '/_protected': {
+      id: '/_protected'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof ProtectedImport
       parentRoute: typeof rootRoute
     }
-    '/users/_search': {
-      id: '/users/_search'
+    '/_protected/users': {
+      id: '/_protected/users'
       path: '/users'
       fullPath: '/users'
-      preLoaderRoute: typeof UsersSearchImport
-      parentRoute: typeof UsersRoute
+      preLoaderRoute: typeof ProtectedUsersImport
+      parentRoute: typeof ProtectedImport
     }
-    '/users/_search/': {
-      id: '/users/_search/'
+    '/_protected/users/_search': {
+      id: '/_protected/users/_search'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof ProtectedUsersSearchImport
+      parentRoute: typeof ProtectedUsersRoute
+    }
+    '/_protected/users/_search/': {
+      id: '/_protected/users/_search/'
       path: '/'
       fullPath: '/users/'
-      preLoaderRoute: typeof UsersSearchIndexImport
-      parentRoute: typeof UsersSearchImport
+      preLoaderRoute: typeof ProtectedUsersSearchIndexImport
+      parentRoute: typeof ProtectedUsersSearchImport
     }
   }
 }
@@ -82,8 +95,12 @@ declare module '@tanstack/react-router' {
 
 export const routeTree = rootRoute.addChildren({
   IndexRoute,
-  UsersRoute: UsersRoute.addChildren({
-    UsersSearchRoute: UsersSearchRoute.addChildren({ UsersSearchIndexRoute }),
+  ProtectedRoute: ProtectedRoute.addChildren({
+    ProtectedUsersRoute: ProtectedUsersRoute.addChildren({
+      ProtectedUsersSearchRoute: ProtectedUsersSearchRoute.addChildren({
+        ProtectedUsersSearchIndexRoute,
+      }),
+    }),
   }),
 })
 
@@ -96,28 +113,35 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/users"
+        "/_protected"
       ]
     },
     "/": {
       "filePath": "index.tsx"
     },
-    "/users": {
-      "filePath": "users",
+    "/_protected": {
+      "filePath": "_protected.tsx",
       "children": [
-        "/users/_search"
+        "/_protected/users"
       ]
     },
-    "/users/_search": {
-      "filePath": "users/_search.tsx",
-      "parent": "/users",
+    "/_protected/users": {
+      "filePath": "_protected/users",
+      "parent": "/_protected",
       "children": [
-        "/users/_search/"
+        "/_protected/users/_search"
       ]
     },
-    "/users/_search/": {
-      "filePath": "users/_search/index.tsx",
-      "parent": "/users/_search"
+    "/_protected/users/_search": {
+      "filePath": "_protected/users/_search.tsx",
+      "parent": "/_protected/users",
+      "children": [
+        "/_protected/users/_search/"
+      ]
+    },
+    "/_protected/users/_search/": {
+      "filePath": "_protected/users/_search/index.tsx",
+      "parent": "/_protected/users/_search"
     }
   }
 }
